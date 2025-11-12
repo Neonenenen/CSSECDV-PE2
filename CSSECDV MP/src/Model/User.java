@@ -13,14 +13,14 @@ public class User {
     private String salt;
 
     public User(String username, String password){
-        this.username = username;
+        setUsername(username);
         setPassword(password);
     }
     
     public User(int id, String username, String password, int role, int locked){
         this.id = id;
-        this.username = username;
-        this.password = password;
+        setUsername(username);
+        setPassword(password);
         this.role = role;
         this.locked = locked;
     }
@@ -38,6 +38,15 @@ public class User {
     }
 
     public void setUsername(String username) {
+        if (username == null || username.isEmpty()){
+            throw new IllegalArgumentException("Username cannot be empty");
+        }
+        if (username.length() < 3 || username.length() > 40){
+            throw new IllegalArgumentException("Username must be between 3 and 40 characters");
+        }
+        if (!username.matches("^[A-Za-z0-9_.@-]+$")){
+            throw new IllegalArgumentException("Username contains invalid characters");
+        }
         this.username = username;
     }
 
@@ -76,7 +85,7 @@ public class User {
     private String hashPassword(String password, String salt){
         try{
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(Base64.getDecoder().decode(salt)); // mix in salt
+            md.update(Base64.getDecoder().decode(salt));
             byte[] hashed = md.digest(password.getBytes());
             return Base64.getEncoder().encodeToString(hashed);
         }catch (NoSuchAlgorithmException e){
